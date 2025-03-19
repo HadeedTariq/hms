@@ -27,6 +27,9 @@ import { useFullApp } from "@/store/hooks/useFullApp";
 const NavBar = () => {
   const navigate = useNavigate();
   const { user } = useFullApp();
+  console.log("====================================");
+  console.log(user);
+  console.log("====================================");
 
   const logout = async () => {
     await authApi.post("/logout");
@@ -48,35 +51,20 @@ const NavBar = () => {
                 </SheetTrigger>
                 <SheetContent side="left" className="w-[240px] sm:w-[300px]">
                   <nav className="flex flex-col gap-4 mt-6">
-                    <Link
-                      to="#"
-                      className="text-sm font-medium transition-colors hover:text-primary flex items-center gap-2 py-2"
-                    >
-                      Dashboard
-                    </Link>
+                    {user?.role === "owner" && (
+                      <Link
+                        to="/manager-dashboard"
+                        className="text-sm font-medium transition-colors hover:text-primary flex items-center gap-2 py-2"
+                      >
+                        Dashboard
+                      </Link>
+                    )}
+
                     <Link
                       to="#"
                       className="text-sm font-medium transition-colors hover:text-primary flex items-center gap-2 py-2"
                     >
                       Bookings
-                    </Link>
-                    <Link
-                      to="#"
-                      className="text-sm font-medium transition-colors hover:text-primary flex items-center gap-2 py-2"
-                    >
-                      Rooms
-                    </Link>
-                    <Link
-                      to="#"
-                      className="text-sm font-medium transition-colors hover:text-primary flex items-center gap-2 py-2"
-                    >
-                      Guests
-                    </Link>
-                    <Link
-                      to="#"
-                      className="text-sm font-medium transition-colors hover:text-primary flex items-center gap-2 py-2"
-                    >
-                      Reports
                     </Link>
                   </nav>
                 </SheetContent>
@@ -88,12 +76,14 @@ const NavBar = () => {
                 </span>
               </Link>
               <nav className="hidden md:flex items-center gap-6 ml-6">
-                <Link
-                  to="#"
-                  className="text-sm font-medium transition-colors hover:text-primary"
-                >
-                  Dashboard
-                </Link>
+                {user?.role === "owner" && (
+                  <Link
+                    to="/manager-dashboard"
+                    className="text-sm font-medium transition-colors hover:text-primary flex items-center gap-2 py-2"
+                  >
+                    Dashboard
+                  </Link>
+                )}
                 <Link
                   to="#"
                   className="text-sm font-medium transition-colors hover:text-primary"

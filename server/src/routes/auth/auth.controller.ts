@@ -311,23 +311,6 @@ class UserController {
           query: `UPDATE users SET refresh_token = $1 WHERE email = $2`,
           params: [refreshToken, user.email],
         },
-        {
-          query: `INSERT INTO about (user_id, bio, company, job_title) VALUES ($1, '', '', '')`,
-          params: [user.id],
-        },
-        {
-          query: `INSERT INTO social_links (user_id, github) VALUES ($1, $2)`,
-          params: [user.id, `https://github.com/${user.username}`],
-        },
-        {
-          query: `INSERT INTO user_stats (user_id, followers, following, reputation, views, upvotes)
-                  VALUES ($1, 0, 0, 0, 0, 0)`,
-          params: [user.id],
-        },
-        {
-          query: `INSERT INTO streaks (user_id) VALUES ($1)`,
-          params: [user.id],
-        },
       ];
 
       await Promise.all(queries.map((q) => client.query(q.query, q.params)));
@@ -488,6 +471,7 @@ class UserController {
         email: user.email,
         avatar: user.avatar,
         profession: user.profession,
+        role: user.app_user_role,
       },
       env.JWT_ACCESS_TOKEN_SECRET,
       { expiresIn: "2d" }

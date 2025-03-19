@@ -12,6 +12,8 @@ import AuthProtector from "./pages/auth/components/AuthProtector";
 import NavBar from "./pages/app/components/Navbar";
 
 import Home from "./pages/app/routes/Home";
+import ManagerDashboardHome from "./pages/app/routes/manager/ManagerDashboardHome";
+import { ManagerDashboardLayout } from "./pages/app/routes/manager/components/DashboardLayout";
 
 function App() {
   const { user } = useFullApp();
@@ -44,6 +46,9 @@ function App() {
     <Routes>
       <Route path="/" element={<NavBar />}>
         <Route index element={<Home />} />
+      </Route>
+      <Route path="/manager-dashboard" element={<ManagerDashboardLayout />}>
+        <Route index element={<ManagerDashboardHome />} />
       </Route>
       <Route path="/auth" element={<AuthProtector />}>
         <Route path="register" element={<Register />} />

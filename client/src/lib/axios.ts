@@ -6,4 +6,9 @@ const authApi = axios.create({
   withCredentials: true,
 });
 
-export { authApi };
+const managerApi = axios.create({
+  baseURL: `${url}/hotel-manager`,
+  withCredentials: true,
+});
+
+export { authApi, managerApi };

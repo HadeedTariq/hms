@@ -58,7 +58,7 @@ passport.use(
     {
       clientID: env.GITHUB_CLIENT_ID,
       clientSecret: env.GITHUB_CLIENT_SECRET,
-      callbackURL: "your-backend-url",
+      callbackURL: "http://localhost:3000/auth/github/callback",
     },
     (
       accessToken: string,
