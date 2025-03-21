@@ -1,4 +1,5 @@
 import { z } from "zod";
+const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
 
 export const hotelSchema = z.object({
   name: z
@@ -25,12 +26,6 @@ export const hotelSchema = z.object({
     .string()
     .regex(/^\+?\d{10,20}$/, "Invalid phone number format"),
 
-  owner_id: z
-    .number()
-    .int("Owner ID must be an integer")
-    .positive("Owner ID must be a positive number")
-    .optional(),
-
   hotel_images: z
     .array(z.string().url("Invalid image URL"))
     .max(10, "Cannot upload more than 10 images")
@@ -45,19 +40,12 @@ export const hotelSchema = z.object({
 
   check_in_time: z
     .string()
-    .regex(
-      /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/,
-      "Invalid check-in time format (HH:MM:SS)"
-    )
-    .default("14:00:00"),
-
+    .regex(timeRegex, "Invalid time format. Use HH:MM")
+    .default("14:00"),
   check_out_time: z
     .string()
-    .regex(
-      /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/,
-      "Invalid check-out time format (HH:MM:SS)"
-    )
-    .default("12:00:00"),
+    .regex(timeRegex, "Invalid time format. Use HH:MM")
+    .default("12:00"),
 });
 
 export const roomSchema = z.object({

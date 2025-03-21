@@ -11,6 +11,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
 
 // Simple feature list
 const features = [
@@ -36,7 +37,8 @@ const features = [
   },
 ];
 
-export default function WelcomePage() {
+export default function ManagerWelcome() {
+  const navigate = useNavigate();
   return (
     <div className="max-w-5xl mx-auto space-y-10 py-6">
       {/* Simple Header */}
@@ -61,7 +63,11 @@ export default function WelcomePage() {
             Create your first hotel to start managing bookings, rooms, and
             guests all in one place.
           </p>
-          <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+          <Button
+            size="lg"
+            className="bg-blue-600 hover:bg-blue-700"
+            onClick={() => navigate("/manager/create-hotel")}
+          >
             <Plus className="mr-2 h-4 w-4" />
             Create Hotel
           </Button>

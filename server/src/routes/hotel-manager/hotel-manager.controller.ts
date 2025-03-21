@@ -1,7 +1,6 @@
 import { pool, queryDb, runIndependentTransaction } from "@/db/connect";
 import { NextFunction, Request, Response } from "express";
-import { env } from "@/common/utils/envConfig";
-import { z } from "zod";
+
 import { hotelSchema, roomSchema } from "./vaildators/validators";
 
 class HotelManagerController {
@@ -34,14 +33,12 @@ class HotelManagerController {
         data.name,
         data.description || null,
         data.location,
-        data.rating || null,
+        0,
         data.contact_email,
         data.contact_phone,
-        req.body.user?.id || null,
-        data.hotel_images
-          ? JSON.stringify(data.hotel_images)
-          : JSON.stringify([]),
-        data.amenities ? JSON.stringify(data.amenities) : JSON.stringify([]),
+        req.body.user.id || null,
+        data.hotel_images || [],
+        data.amenities || [],
         data.policies || null,
         data.check_in_time,
         data.check_out_time,

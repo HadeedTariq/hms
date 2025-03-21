@@ -14,6 +14,8 @@ import NavBar from "./pages/app/components/Navbar";
 import Home from "./pages/app/routes/Home";
 import ManagerDashboardHome from "./pages/app/routes/manager/ManagerDashboardHome";
 import { ManagerDashboardLayout } from "./pages/app/routes/manager/components/DashboardLayout";
+import HotelCreationForm from "./pages/app/routes/manager/HotelCreationForm";
+import RoomHandling from "./pages/app/routes/manager/components/RoomHandling";
 
 function App() {
   const { user } = useFullApp();
@@ -49,7 +51,9 @@ function App() {
       </Route>
       <Route path="/manager-dashboard" element={<ManagerDashboardLayout />}>
         <Route index element={<ManagerDashboardHome />} />
+        <Route path="handleRooms" element={<RoomHandling />} />
       </Route>
+      <Route path="/manager/create-hotel" element={<HotelCreationForm />} />
       <Route path="/auth" element={<AuthProtector />}>
         <Route path="register" element={<Register />} />
         <Route path="login" element={<Login />} />

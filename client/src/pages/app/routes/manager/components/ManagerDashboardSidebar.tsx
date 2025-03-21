@@ -102,7 +102,7 @@ export function HotelSidebar() {
                             asChild
                             isActive={pathname === "/rooms/all"}
                           >
-                            <Link to="/rooms/all">All Rooms</Link>
+                            <Link to="handleRooms">Handle Rooms</Link>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
                         <SidebarMenuSubItem>
