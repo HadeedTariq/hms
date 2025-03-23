@@ -20,5 +20,19 @@ const useGetOwnerHotel = () => {
   });
   return data;
 };
+const useGetOwnerHotelRooms = () => {
+  const data = useQuery({
+    queryKey: ["getOwnerHotelRooms"],
+    queryFn: async () => {
+      const { data } = await managerApi.get("/");
+      return data as Hotel;
+    },
+    retry: false,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchInterval: 60000,
+  });
+  return data;
+};
 
-export { useGetOwnerHotel };
+export { useGetOwnerHotel, useGetOwnerHotelRooms };

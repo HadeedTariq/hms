@@ -16,6 +16,7 @@ import ManagerDashboardHome from "./pages/app/routes/manager/ManagerDashboardHom
 import { ManagerDashboardLayout } from "./pages/app/routes/manager/components/DashboardLayout";
 import HotelCreationForm from "./pages/app/routes/manager/HotelCreationForm";
 import RoomHandling from "./pages/app/routes/manager/components/RoomHandling";
+import ManageRooms from "./pages/app/routes/manager/ManageHotelRooms";
 
 function App() {
   const { user } = useFullApp();
@@ -51,7 +52,8 @@ function App() {
       </Route>
       <Route path="/manager-dashboard" element={<ManagerDashboardLayout />}>
         <Route index element={<ManagerDashboardHome />} />
-        <Route path="handleRooms" element={<RoomHandling />} />
+        <Route path="create-room" element={<RoomHandling />} />
+        <Route path="manage-rooms" element={<ManageRooms />} />
       </Route>
       <Route path="/manager/create-hotel" element={<HotelCreationForm />} />
       <Route path="/auth" element={<AuthProtector />}>

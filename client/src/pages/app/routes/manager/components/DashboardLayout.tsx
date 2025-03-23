@@ -22,7 +22,7 @@ export function ManagerDashboardLayout() {
       {isError ? (
         <ManagerWelcome />
       ) : (
-        <div className={`min-h-screen `}>
+        <div className={`min-h-screen w-full`}>
           <div className="flex h-screen overflow-hidden">
             <div className="hidden md:block">
               <HotelSidebar />

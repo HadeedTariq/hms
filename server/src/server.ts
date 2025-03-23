@@ -88,9 +88,7 @@ passport.deserializeUser(
   }
 );
 
-// createTable(`
-
-//   `);
+// createTable(``);
 // Request logging
 app.use(requestLogger);
 

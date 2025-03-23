@@ -102,7 +102,7 @@ export function HotelSidebar() {
                             asChild
                             isActive={pathname === "/rooms/all"}
                           >
-                            <Link to="handleRooms">Handle Rooms</Link>
+                            <Link to="create-room">Create Rooms</Link>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
                         <SidebarMenuSubItem>
@@ -110,7 +110,7 @@ export function HotelSidebar() {
                             asChild
                             isActive={pathname === "/rooms/available"}
                           >
-                            <Link to="/rooms/available">Available</Link>
+                            <Link to="manage-rooms">Manage Rooms</Link>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
                         <SidebarMenuSubItem>

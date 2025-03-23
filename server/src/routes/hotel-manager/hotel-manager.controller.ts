@@ -2,19 +2,22 @@ import { pool, queryDb, runIndependentTransaction } from "@/db/connect";
 import { NextFunction, Request, Response } from "express";
 
 import { hotelSchema, roomSchema } from "./vaildators/validators";
+import { z } from "zod";
 
 class HotelManagerController {
   constructor() {
     this.createHotel = this.createHotel.bind(this);
     this.getHotel = this.getHotel.bind(this);
+    this.getHotelRooms = this.getHotelRooms.bind(this);
+    this.createRoom = this.createRoom.bind(this);
     this.getHotelById = this.getHotelById.bind(this);
     this.updateHotel = this.updateHotel.bind(this);
     this.deleteHotel = this.deleteHotel.bind(this);
 
-    this.createRoom = this.createRoom.bind(this);
     this.getRoomsByHotel = this.getRoomsByHotel.bind(this);
     this.updateRoom = this.updateRoom.bind(this);
     this.deleteRoom = this.deleteRoom.bind(this);
+    this.checkIsHotelExist = this.checkIsHotelExist.bind(this);
   }
 
   // Create a new hotel
@@ -65,6 +68,24 @@ class HotelManagerController {
           .json({ message: "No hotels found for this manager" });
       }
       return res.status(200).json(result.rows[0]);
+    } catch (error) {
+      next(error);
+    }
+  }
+  async getHotelRooms(req: Request, res: Response, next: NextFunction) {
+    try {
+      const hotel_id = await this.checkIsHotelExist(req.body.user.id);
+      if (!hotel_id) {
+        return res.status(404).json({ message: "Hotel not found" });
+      }
+      const query = `SELECT * FROM rooms WHERE hotel_id = $1`;
+      const result = await queryDb(query, [hotel_id]);
+      if (result.rows.length < 1) {
+        return res
+          .status(404)
+          .json({ message: "No hotels found for this manager" });
+      }
+      return res.status(200).json(result.rows);
     } catch (error) {
       next(error);
     }
@@ -156,12 +177,18 @@ class HotelManagerController {
     try {
       const data = roomSchema.parse(req.body);
 
+      const hotel_id = await this.checkIsHotelExist(req.body.user.id);
+
+      if (!hotel_id) {
+        return res.status(404).json({ message: "Hotel not found" });
+      }
+
       const query = `
         INSERT INTO rooms (hotel_id, room_number, type, price, capacity, is_available)
         VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
       `;
       const values = [
-        data.hotel_id,
+        hotel_id,
         data.room_number,
         data.type,
         data.price,
@@ -173,7 +200,21 @@ class HotelManagerController {
       return res
         .status(201)
         .json({ message: "Room created", room: result.rows[0] });
-    } catch (error) {
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          message: error.errors
+            .map((err) => `${err.path.join(".")}: ${err.message}`)
+            .join(" | "),
+        });
+      }
+
+      if (error.code === "23505") {
+        return res.status(400).json({
+          message: "A room with this number already exists in the  hotel.",
+        });
+      }
+
       next(error);
     }
   }
@@ -237,6 +278,19 @@ class HotelManagerController {
       next(error);
     }
   }
+  checkIsHotelExist = async (manager_id: number) => {
+    try {
+      const query = `SELECT id FROM hotels WHERE owner_id = $1`;
+      const { rows, rowCount } = await queryDb(query, [manager_id]);
+
+      if (rowCount === 0) {
+        return false;
+      }
+      return rows[0].id;
+    } catch (error) {
+      return false;
+    }
+  };
 }
 
 export const hotelManagerController = new HotelManagerController();

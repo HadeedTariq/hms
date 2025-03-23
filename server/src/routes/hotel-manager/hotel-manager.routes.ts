@@ -7,7 +7,9 @@ const router = Router();
 
 router.use(checkIsManager);
 router.post("/", asyncHandler(hotelManagerController.createHotel));
+router.post("/create-room", asyncHandler(hotelManagerController.createRoom));
 router.get("/", asyncHandler(hotelManagerController.getHotel));
+router.get("/hotel-rooms", asyncHandler(hotelManagerController.getHotelRooms));
 router.get("/:id", asyncHandler(hotelManagerController.getHotelById));
 router.put("/:id", asyncHandler(hotelManagerController.updateHotel));
 router.delete("/:id", asyncHandler(hotelManagerController.deleteHotel));

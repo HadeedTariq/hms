@@ -35,7 +35,8 @@ CREATE TABLE rooms (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     room_images TEXT [],
-    amenities TEXT [] -- Room-specific amenities like 'TV', 'AC', 'Minibar', etc.
+    amenities TEXT [],
+    CONSTRAINT unique_hotel_room UNIQUE (hotel_id, room_number)
 );
 
 -- Bookings Table

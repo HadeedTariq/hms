@@ -49,7 +49,6 @@ export const hotelSchema = z.object({
 });
 
 export const roomSchema = z.object({
-  hotel_id: z.number(),
   room_number: z.string().min(1, "Room number is required"),
   type: z.enum(["single", "double", "suite", "deluxe"]),
   price: z.number().positive("Price must be positive"),
