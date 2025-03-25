@@ -27,6 +27,19 @@ interface Hotel {
   hotel_images?: string[];
   amenities?: string[];
   policies?: string | null;
-  check_in_time?: string; // TIME type in Postgres is often represented as string in JS
-  check_out_time?: string; // TIME type in Postgres is often represented as string in JS
+  check_in_time?: string;
+  check_out_time?: string;
+}
+interface Room {
+  id: number;
+  hotel_id: number;
+  room_number: string;
+  type: "single" | "double" | "suite";
+  price: number;
+  capacity: number;
+  is_available: boolean;
+  created_at: string;
+  updated_at: string;
+  room_images: string[];
+  amenities: string[];
 }

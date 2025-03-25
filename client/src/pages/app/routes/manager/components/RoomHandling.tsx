@@ -74,7 +74,7 @@ const commonAmenities = [
 ];
 
 // Zod schema for room creation
-const roomSchema = z.object({
+export const roomSchema = z.object({
   hotel_id: z.coerce.number().positive("Room ID is required"),
   room_number: z.string().min(1, "Room number is required"),
   type: z.enum(roomTypes, {

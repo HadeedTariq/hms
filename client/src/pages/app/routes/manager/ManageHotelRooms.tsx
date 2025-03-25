@@ -1,6 +1,4 @@
-"use client";
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BedDouble,
   Check,
@@ -60,112 +58,13 @@ import { Badge } from "@/components/ui/badge";
 
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
+import { useGetOwnerHotelRooms } from "../../hooks/useHotelsManagement";
+import { Navigate } from "react-router-dom";
+import LoadingBar from "@/components/LoadingBar";
+import { roomSchema } from "./components/RoomHandling";
 
 // Define the room types based on the schema
 const roomTypes = ["single", "double", "suite", "deluxe"] as const;
-
-// Mock data for rooms
-const mockRooms = [
-  {
-    id: 1,
-    hotel_id: 1,
-    room_number: "101",
-    type: "single",
-    price: 99.99,
-    capacity: 1,
-    is_available: true,
-    created_at: "2023-01-15T10:30:00Z",
-    updated_at: "2023-01-15T10:30:00Z",
-    room_images: [
-      "https://images.unsplash.com/photo-1566665797739-1674de7a421a?q=80&w=300",
-    ],
-    amenities: ["TV", "Wi-Fi", "AC"],
-  },
-  {
-    id: 2,
-    hotel_id: 1,
-    room_number: "102",
-    type: "single",
-    price: 99.99,
-    capacity: 1,
-    is_available: false,
-    created_at: "2023-01-15T10:35:00Z",
-    updated_at: "2023-01-15T10:35:00Z",
-    room_images: [
-      "https://images.unsplash.com/photo-1566665797739-1674de7a421a?q=80&w=300",
-    ],
-    amenities: ["TV", "Wi-Fi", "AC"],
-  },
-  {
-    id: 3,
-    hotel_id: 1,
-    room_number: "201",
-    type: "double",
-    price: 149.99,
-    capacity: 2,
-    is_available: true,
-    created_at: "2023-01-15T11:30:00Z",
-    updated_at: "2023-01-15T11:30:00Z",
-    room_images: [
-      "https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=300",
-    ],
-    amenities: ["TV", "Wi-Fi", "AC", "Minibar"],
-  },
-  {
-    id: 4,
-    hotel_id: 1,
-    room_number: "301",
-    type: "suite",
-    price: 299.99,
-    capacity: 4,
-    is_available: true,
-    created_at: "2023-01-16T09:30:00Z",
-    updated_at: "2023-01-16T09:30:00Z",
-    room_images: [
-      "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?q=80&w=300",
-    ],
-    amenities: ["TV", "Wi-Fi", "AC", "Minibar", "Bathtub", "King Bed"],
-  },
-  {
-    id: 5,
-    hotel_id: 1,
-    room_number: "401",
-    type: "deluxe",
-    price: 399.99,
-    capacity: 2,
-    is_available: true,
-    created_at: "2023-01-17T14:30:00Z",
-    updated_at: "2023-01-17T14:30:00Z",
-    room_images: [
-      "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?q=80&w=300",
-    ],
-    amenities: [
-      "TV",
-      "Wi-Fi",
-      "AC",
-      "Minibar",
-      "Bathtub",
-      "King Bed",
-      "Ocean View",
-      "Room Service",
-    ],
-  },
-];
-
-// Zod schema for room editing
-const roomSchema = z.object({
-  id: z.number(),
-  hotel_id: z.number().positive("Hotel ID is required"),
-  room_number: z.string().min(1, "Room number is required"),
-  type: z.enum(roomTypes, {
-    errorMap: () => ({ message: "Please select a valid room type" }),
-  }),
-  price: z.coerce.number().positive("Price must be greater than 0"),
-  capacity: z.coerce.number().int().positive("Capacity must be at least 1"),
-  is_available: z.boolean().default(true),
-  room_images: z.array(z.string().url("Please enter a valid URL")).default([]),
-  amenities: z.array(z.string()).default([]),
-});
 
 // Zod schema for batch price update
 const priceUpdateSchema = z.object({
@@ -176,17 +75,18 @@ const priceUpdateSchema = z.object({
   percentage: z.boolean().default(false),
 });
 
-type RoomFormValues = z.infer<typeof roomSchema>;
+type RoomFormValues = z.infer<typeof roomSchema> & { id: number };
 type PriceUpdateFormValues = z.infer<typeof priceUpdateSchema>;
 
 export default function ManageRooms() {
   // State for managing rooms data
-  const [rooms, setRooms] = useState(mockRooms);
-  const [filteredRooms, setFilteredRooms] = useState(mockRooms);
+  const { data, isPending, isError } = useGetOwnerHotelRooms();
+  const [rooms, setRooms] = useState(data);
+  const [filteredRooms, setFilteredRooms] = useState(data);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<string | null>(null);
-  const [filterAvailability, setFilterAvailability] = useState<boolean | null>(
+  const [filterAvailability, setFilterAvailability] = useState<string | null>(
     null
   );
 
@@ -226,32 +126,51 @@ export default function ManageRooms() {
   });
 
   // Function to apply filters
-  const applyFilters = () => {
-    let result = [...rooms];
+  const applyFilters = (availabilityFilter: string, typeFilter?: string) => {
+    let result = [...(rooms ? rooms : [])];
 
     // Apply search query filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      result = result.filter(
+      result = result?.filter(
         (room) =>
           room.room_number.toLowerCase().includes(query) ||
           room.type.toLowerCase().includes(query) ||
-          room.amenities.some((amenity) =>
+          room.amenities.some((amenity: string) =>
             amenity.toLowerCase().includes(query)
           )
       );
     }
 
     // Apply room type filter
-    if (filterType) {
+    if (typeFilter === "all") {
+      result = result.filter((room) => room.type);
+    } else if (typeFilter !== "all") {
+      result = result.filter((room) => room.type === typeFilter);
+    } else if (typeFilter.length < 1 && filterType !== "all") {
       result = result.filter((room) => room.type === filterType);
     }
 
     // Apply availability filter
-    if (filterAvailability !== null) {
-      result = result.filter(
-        (room) => room.is_available === filterAvailability
-      );
+    if (availabilityFilter !== null) {
+      if (
+        availabilityFilter === "all" ||
+        (filterAvailability === "all" && availabilityFilter === "")
+      ) {
+        result = result.filter(
+          (room) => room.is_available || !room.is_available
+        );
+      } else if (
+        availabilityFilter === "true" ||
+        (filterAvailability === "true" && availabilityFilter === "")
+      ) {
+        result = result.filter((room) => room.is_available === true);
+      } else if (
+        availabilityFilter === "false" ||
+        (filterAvailability === "false" && availabilityFilter === "")
+      ) {
+        result = result.filter((room) => room.is_available === false);
+      }
     }
 
     setFilteredRooms(result);
@@ -266,7 +185,7 @@ export default function ManageRooms() {
   };
 
   // Function to open edit dialog
-  const openEditDialog = (room: any) => {
+  const openEditDialog = (room: Room) => {
     setSelectedRoom(room);
     editForm.reset({
       id: room.id,
@@ -344,13 +263,6 @@ export default function ManageRooms() {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // Update the room in the local state
-      const updatedRooms = rooms.map((room) =>
-        room.id === data.id ? { ...room, ...data } : room
-      );
-      setRooms(updatedRooms);
-      setFilteredRooms(updatedRooms);
-
       toast({
         title: "Room updated successfully",
         description: `Room ${data.room_number} has been updated.`,
@@ -380,7 +292,7 @@ export default function ManageRooms() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Update the prices in the local state
-      const updatedRooms = rooms.map((room) => {
+      const updatedRooms = rooms?.map((room) => {
         if (room.type === data.type) {
           if (data.percentage) {
             // Calculate new price based on percentage increase/decrease
@@ -434,6 +346,14 @@ export default function ManageRooms() {
     "King Bed",
     "Queen Bed",
   ];
+
+  useEffect(() => {
+    setRooms(data);
+    setFilteredRooms(data);
+  }, [data]);
+
+  if (isPending) return <LoadingBar />;
+  if (isError) return <Navigate to={"/"} />;
 
   return (
     <div className="container mx-auto py-10">
@@ -590,7 +510,7 @@ export default function ManageRooms() {
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
-                  applyFilters();
+                  applyFilters("");
                 }}
               />
             </div>
@@ -598,8 +518,10 @@ export default function ManageRooms() {
               <Select
                 value={filterType || ""}
                 onValueChange={(value) => {
+                  console.log(value);
+
                   setFilterType(value || null);
-                  applyFilters();
+                  applyFilters("", value);
                 }}
               >
                 <SelectTrigger className="w-[180px]">
@@ -621,8 +543,8 @@ export default function ManageRooms() {
                     : filterAvailability.toString()
                 }
                 onValueChange={(value) => {
-                  setFilterAvailability(value === "" ? null : value === "true");
-                  applyFilters();
+                  setFilterAvailability(value);
+                  applyFilters(value);
                 }}
               >
                 <SelectTrigger className="w-[180px]">
@@ -652,7 +574,7 @@ export default function ManageRooms() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredRooms.length === 0 ? (
+                {filteredRooms?.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={7}
@@ -662,13 +584,13 @@ export default function ManageRooms() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredRooms.map((room) => (
+                  filteredRooms?.map((room) => (
                     <TableRow key={room.id}>
                       <TableCell className="font-medium">
                         {room.room_number}
                       </TableCell>
                       <TableCell className="capitalize">{room.type}</TableCell>
-                      <TableCell>${room.price.toFixed(2)}</TableCell>
+                      <TableCell>${room.price}</TableCell>
                       <TableCell>{room.capacity}</TableCell>
                       <TableCell>
                         <Badge

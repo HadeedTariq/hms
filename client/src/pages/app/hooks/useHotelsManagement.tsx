@@ -21,18 +21,19 @@ const useGetOwnerHotel = () => {
   return data;
 };
 const useGetOwnerHotelRooms = () => {
-  const data = useQuery({
+  const queryData = useQuery({
     queryKey: ["getOwnerHotelRooms"],
     queryFn: async () => {
-      const { data } = await managerApi.get("/");
-      return data as Hotel;
+      const { data } = await managerApi.get("/hotel-rooms");
+      return data as Room[];
     },
     retry: false,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchInterval: 60000,
   });
-  return data;
+
+  return queryData;
 };
 
 export { useGetOwnerHotel, useGetOwnerHotelRooms };
